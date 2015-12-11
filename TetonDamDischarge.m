@@ -31,9 +31,7 @@ A = zeros(1,round(c/ng));
 %end
     
 
-%Find the mean velocity 
-
-
+%Find the mean velocity
 
 %We only use the y-velocity here since the x-velocity is parallel to
 %the boundary we are considering
@@ -54,6 +52,16 @@ for j = 1:time_steps;
     %Trapezoidal Rule:
     %QT(j) = length*[(Q((j-1)*ng+1)+Q((j-1)*ng+ng))/2];
 end 
+
+
+
+%Calculate total discharge
+[peak,index] = max(QT);
+%Simpson's rule on the lower half
+lower_area = ((index-0)/6)*(QT(1) +4*QT(round(index/2))+QT(index))
+upper_area = ((time_steps - index)/6)*(QT(index) +4*QT(round((index+time_steps)/2))+QT(time_steps))
+p = lower_area + upper_area
+
 
 [~,b] = size(QT)
 %b/120
@@ -78,22 +86,28 @@ end
     %t = 1:b;
     %label = 'Time In Seconds';
 %end
-t=1:time_steps;   
+
+%Plot the actual
+
+t=1:time_steps;  
 label = 'Time In Seconds';
-plot(t,QT);
+
+clf
+
+img = imread('TetonDam--Predicted and observed breach outflow hydrograph and breach properties..PNG');
+imagesc([1:18000],[1:peak],flipud(img)); 
+hold on
+
+plot(t,QT,'b-','linewidth',1.5);
+
+set(gca, 'ydir', 'normal');
+
 legend('Cubic Feet Per Second');
 title('Hydrograph of GeoClaw Simulation of Teton Dam');
 xlabel(label);
 ylabel('Cubic Feet Per Second (CFS)');
 %annotation('textbox', [0.2 0.5 0.3 0.3],'String',sprintf('%s%f\n%s%f',' Total Discharge: ',p, ' Peak Discharge: ',peak))
 
-%Calculate total discharge
-[peak,index] = max(QT);
-
-%Simpson's rule on the lower half
-lower_area = ((index-0)/6)*(QT(1) +4*QT(round(index/2))+QT(index))
-upper_area = ((time_steps - index)/6)*(QT(index) +4*QT(round((index+time_steps)/2))+QT(time_steps))
-p = lower_area + upper_area
 
 end
 
